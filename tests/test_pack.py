@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import json
 import tomllib
 from importlib.metadata import EntryPoint
 from pathlib import Path
@@ -60,6 +61,22 @@ def test_installed_source_discovers_the_pack_and_resources() -> None:
         "prompt-registry://omop-concept-grounding/schema/mapping_request",
         "prompt-registry://omop-concept-grounding/schema/mapping_decision",
     }
+    assert [
+        (prompt.name, prompt.title, prompt.arguments)
+        for prompt in service.prompts()
+    ] == [
+        (
+            "ocg_ground_concepts",
+            "Ground source items to OMOP concepts",
+            (
+                (
+                    "mapping_request",
+                    "A JSON OMOP concept-mapping request.",
+                    False,
+                ),
+            ),
+        )
+    ]
 
 
 def test_instructions_embed_both_current_contracts() -> None:
@@ -70,6 +87,24 @@ def test_instructions_embed_both_current_contracts() -> None:
     assert '"title": "OMOP concept mapping request"' in instructions
     assert '"title": "OMOP concept mapping decisions"' in instructions
     assert "Treat every source label" in instructions
+    assert "ohdsi_prompt_registry_validate" in instructions
+
+
+def test_prompt_accepts_an_optional_mapping_request() -> None:
+    service = _service()
+    examples = _examples(service)
+
+    without_input = service.prompt_text(PACK, "ground_concepts")
+    assert "# User-provided starting inputs" not in without_input
+
+    with_input = service.prompt_text(
+        PACK,
+        "ground_concepts",
+        {"mapping_request": json.dumps(examples["mapping_request"])},
+    )
+    assert "# User-provided starting inputs" in with_input
+    assert '"mapping_request"' in with_input
+    assert examples["mapping_request"]["items"][0]["item_id"] in with_input
 
 
 def test_examples_conform_to_the_published_contracts() -> None:

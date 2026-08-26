@@ -34,6 +34,13 @@ Accept a document conforming to this schema:
 
 {{schema:mapping_request}}
 
+If `mapping_request` appears in the user-provided starting inputs, parse its
+string value as JSON and use it as the request. Otherwise use a request the user
+has already supplied in the conversation, or ask for one. Before grounding,
+call `ohdsi_prompt_registry_validate` with `pack: omop-concept-grounding`,
+`schema: mapping_request`, and the request JSON as `document`. Ask the user to
+correct invalid source content; do not invent missing values.
+
 Process every item independently and return exactly one decision with the same
 `item_id`. Do not merge labels merely because they occur in one batch.
 
@@ -135,8 +142,11 @@ Return a document conforming to this schema:
 
 {{schema:mapping_decision}}
 
+Before returning the decisions, call `ohdsi_prompt_registry_validate` with
+`pack: omop-concept-grounding`, `schema: mapping_decision`, and the decision JSON
+as `document`. Correct and revalidate your own output until it conforms.
+
 Return decisions in request order. Every proposal must include its own concise
 rationale and evidence trail. The decision-level rationale explains why the
 chosen outcome is appropriate, while `warnings` records material limitations
 without changing the outcome contract.
-

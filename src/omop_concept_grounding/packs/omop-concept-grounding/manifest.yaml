@@ -34,6 +34,16 @@ schemas:
     description: >
       Auditable mapped, ambiguous, unmappable, or needs-review outcomes.
 
+prompts:
+  ground_concepts:
+    document: instructions
+    title: Ground source items to OMOP concepts
+    description: Map source clinical items to verified active OMOP standard concepts.
+    arguments:
+      mapping_request:
+        description: A JSON OMOP concept-mapping request.
+        required: false
+
 render: {}
 
 requires_tools:
@@ -43,3 +53,4 @@ requires_tools:
   - concept_navigate_to_standard
   - concept_get
 
+tool_prefix: ocg
