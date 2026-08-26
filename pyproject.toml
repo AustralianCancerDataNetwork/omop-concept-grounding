@@ -1,0 +1,42 @@
+[project]
+name = "omop-concept-grounding"
+version = "0.0.1"
+description = "Agent-facing instructions and contracts for verified OMOP concept grounding."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "ohdsi-prompt-registry>=0.0.1,<1",
+]
+
+[project.entry-points."ohdsi_prompt_registry.packs"]
+omop_concept_grounding = "omop_concept_grounding.packs"
+
+[dependency-groups]
+dev = [
+  "pytest>=9,<10",
+  "ruff>=0.4",
+  "ty>=0.0.59",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/omop_concept_grounding"]
+
+[tool.uv.sources]
+ohdsi-prompt-registry = { path = "../ohdsi-prompt-registry", editable = true }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "UP", "RUF"]
+
+[tool.ty.src]
+include = ["src"]
+

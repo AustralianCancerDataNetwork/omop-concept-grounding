@@ -1,0 +1,189 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ohdsi.org/schemas/omop-concept-grounding/mapping-decision.schema.json",
+  "title": "OMOP concept mapping decisions",
+  "description": "Auditable outcomes for a batch of source clinical items.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["decisions"],
+  "properties": {
+    "request_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "decisions": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 100,
+      "items": {
+        "$ref": "#/$defs/decision"
+      }
+    }
+  },
+  "$defs": {
+    "proposal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "concept_id",
+        "concept_name",
+        "domain_id",
+        "vocabulary_id",
+        "standard_concept",
+        "verified",
+        "confidence",
+        "rationale",
+        "evidence"
+      ],
+      "properties": {
+        "concept_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "concept_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "domain_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "vocabulary_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "standard_concept": {
+          "const": true
+        },
+        "verified": {
+          "const": true
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1
+        },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "standardized_from": {
+          "type": ["integer", "null"],
+          "minimum": 1
+        }
+      }
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "item_id",
+        "source_label",
+        "outcome",
+        "proposals",
+        "rationale",
+        "warnings",
+        "review_questions"
+      ],
+      "properties": {
+        "item_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "outcome": {
+          "enum": ["mapped", "ambiguous", "unmappable", "needs_review"]
+        },
+        "proposals": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/proposal"
+          }
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1
+        },
+        "warnings": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "review_questions": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"outcome": {"const": "mapped"}},
+            "required": ["outcome"]
+          },
+          "then": {
+            "properties": {
+              "proposals": {"minItems": 1, "maxItems": 1},
+              "review_questions": {"maxItems": 0}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"outcome": {"const": "ambiguous"}},
+            "required": ["outcome"]
+          },
+          "then": {
+            "properties": {
+              "proposals": {"minItems": 2},
+              "review_questions": {"minItems": 1}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"outcome": {"const": "unmappable"}},
+            "required": ["outcome"]
+          },
+          "then": {
+            "properties": {
+              "proposals": {"maxItems": 0},
+              "review_questions": {"maxItems": 0}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"outcome": {"const": "needs_review"}},
+            "required": ["outcome"]
+          },
+          "then": {
+            "properties": {
+              "review_questions": {"minItems": 1}
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+

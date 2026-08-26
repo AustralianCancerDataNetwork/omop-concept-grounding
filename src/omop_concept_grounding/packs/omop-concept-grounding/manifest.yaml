@@ -1,0 +1,45 @@
+name: omop-concept-grounding
+title: OMOP concept grounding
+version: "1.0"
+shareability: public
+scope_summary: >
+  Guides an agent in mapping source clinical items to verified, active OMOP
+  standard concepts while preserving ambiguity and human-review decisions.
+
+applicability:
+  always: false
+  tags: [omop, concept-mapping, terminology, vocabulary, grounding]
+
+see_also: []
+
+documents:
+  instructions:
+    path: instructions.md
+    mime_type: text/markdown
+    description: >
+      Canonical workflow for evidence-based, tool-verified OMOP concept grounding.
+  examples:
+    path: examples.yaml
+    mime_type: application/json
+    description: >
+      Valid request and decision examples, including mapped and unresolved items.
+
+schemas:
+  mapping_request:
+    path: mapping-request.schema.json
+    description: >
+      Batch-friendly input contract for source items and their available context.
+  mapping_decision:
+    path: mapping-decision.schema.json
+    description: >
+      Auditable mapped, ambiguous, unmappable, or needs-review outcomes.
+
+render: {}
+
+requires_tools:
+  - concept_map_to_standard
+  - concept_search_exact
+  - concept_search_normalized
+  - concept_navigate_to_standard
+  - concept_get
+

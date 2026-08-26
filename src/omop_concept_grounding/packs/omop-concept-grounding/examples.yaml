@@ -1,0 +1,76 @@
+mapping_request:
+  request_id: example-batch
+  items:
+    - item_id: diagnosis-1
+      label: Type 2 diabetes mellitus
+      description: Diagnosis recorded in the participant problem list.
+      item_kind: diagnosis
+      source_vocabulary: ICD10CM
+      source_code: E11.9
+      domain_hint: Condition
+      context:
+        section: Medical history
+      existing_candidates: []
+    - item_id: abbreviation-1
+      label: MS
+      description: Abbreviation without a definition or clinical section.
+      item_kind: field
+      source_vocabulary: null
+      source_code: null
+      domain_hint: null
+      context: {}
+      existing_candidates: []
+    - item_id: heading-1
+      label: Reviewer notes
+      description: Free-text instructions for the data reviewer.
+      item_kind: heading
+      source_vocabulary: null
+      source_code: null
+      domain_hint: null
+      context:
+        section: Administrative metadata
+      existing_candidates: []
+
+mapping_decision:
+  request_id: example-batch
+  decisions:
+    - item_id: diagnosis-1
+      source_label: Type 2 diabetes mellitus
+      outcome: mapped
+      proposals:
+        - concept_id: 201826
+          concept_name: Type 2 diabetes mellitus
+          domain_id: Condition
+          vocabulary_id: SNOMED
+          standard_concept: true
+          verified: true
+          confidence: 0.98
+          rationale: >
+            The source code maps to the verified standard concept and the label
+            and Condition-domain context agree.
+          evidence:
+            - ICD10CM E11.9 followed a Maps to relationship to this target.
+            - concept_get confirmed the target name, domain, vocabulary, and standard status.
+      rationale: One verified standard target preserves the supplied diagnosis meaning.
+      warnings: []
+      review_questions: []
+    - item_id: abbreviation-1
+      source_label: MS
+      outcome: needs_review
+      proposals: []
+      rationale: >
+        The abbreviation has multiple clinical expansions and no context supports
+        choosing one meaning.
+      warnings:
+        - No source vocabulary, code, domain, or clinical section was supplied.
+      review_questions:
+        - What does MS mean in this source and which clinical domain contains it?
+    - item_id: heading-1
+      source_label: Reviewer notes
+      outcome: unmappable
+      proposals: []
+      rationale: >
+        This is an administrative heading rather than a clinical meaning stored
+        in an OMOP concept field.
+      warnings: []
+      review_questions: []
