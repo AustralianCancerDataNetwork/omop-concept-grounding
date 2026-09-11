@@ -5,7 +5,7 @@ description = "Agent-facing instructions and contracts for verified OMOP concept
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-  "ohdsi-prompt-registry>=0.1,<1.0",
+  "ohdsi-prompt-registry>=0.2,<1.0",
 ]
 
 [project.optional-dependencies]
@@ -32,15 +32,6 @@ packages = ["src/omop_concept_grounding"]
 [tool.uv]
 cache-keys = [{ file = "pyproject.toml" }, { git = { commit = true, tags = true } }]
 constraint-dependencies = ["setuptools>=83.0.0"]
-
-# `ohdsi-prompt-registry` is not on PyPI yet, so neither `uv lock` nor CI's
-# `uv sync` can resolve the dependency above. Until the first simultaneous
-# release of both distributions, uncomment the source below for local work and
-# re-comment it before committing -- a committed path source resolves to a
-# directory that does not exist on a CI runner.
-#
-[tool.uv.sources]
-ohdsi-prompt-registry = { path = "../ohdsi-prompt-registry", editable = true }
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

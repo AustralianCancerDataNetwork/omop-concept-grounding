@@ -2118,7 +2118,8 @@ wheels = [
 
 [[package]]
 name = "ohdsi-prompt-registry"
-source = { editable = "../ohdsi-prompt-registry" }
+version = "0.2.0"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "groundworkers", extra = ["tui"] },
     { name = "jsonschema" },
@@ -2127,24 +2128,10 @@ dependencies = [
     { name = "pydantic" },
     { name = "pyyaml" },
 ]
-
-[package.metadata]
-requires-dist = [
-    { name = "groundworkers", extras = ["tui"], specifier = ">=0.5,<1" },
-    { name = "jsonschema", specifier = ">=4,<5" },
-    { name = "mcp", specifier = ">=1,<2" },
-    { name = "mkdocs", marker = "extra == 'dev'", specifier = "<2.0" },
-    { name = "mkdocs-material", marker = "extra == 'dev'" },
-    { name = "mkdocstrings", extras = ["python"], marker = "extra == 'dev'" },
-    { name = "oa-configurator", specifier = ">=1.2.1,<2" },
-    { name = "pydantic", specifier = ">=2,<3" },
-    { name = "pygments", marker = "extra == 'dev'", specifier = ">=2.20.0" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=9,<10" },
-    { name = "pyyaml", specifier = ">=6" },
-    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.4" },
-    { name = "ty", marker = "extra == 'dev'", specifier = ">=0.0.59" },
+sdist = { url = "https://files.pythonhosted.org/packages/cf/40/878f61536482f6845244de42b4361c656fb790712a0e313465c9149089f7/ohdsi_prompt_registry-0.2.0.tar.gz", hash = "sha256:081b06aaee811cabce9d5900c813684244976cdaacd6b4203b430e30d57211a4", size = 242994, upload-time = "2026-09-11T03:39:01.878Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/61/4f/4c5ab9c6aa210478740f5a1ba7f732960fe022063794af740066257c7761/ohdsi_prompt_registry-0.2.0-py3-none-any.whl", hash = "sha256:3c5506f666db7ff559dea9117bb9fac5de180847cf6c555f510ae6d53502fe7f", size = 30708, upload-time = "2026-09-11T03:39:00.358Z" },
 ]
-provides-extras = ["dev"]
 
 [[package]]
 name = "ollama"
@@ -2209,7 +2196,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "ohdsi-prompt-registry", editable = "../ohdsi-prompt-registry" },
+    { name = "ohdsi-prompt-registry", specifier = ">=0.2,<1.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=9,<10" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.4" },
     { name = "ty", marker = "extra == 'dev'", specifier = ">=0.0.59" },
