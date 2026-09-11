@@ -39,8 +39,8 @@ constraint-dependencies = ["setuptools>=83.0.0"]
 # re-comment it before committing -- a committed path source resolves to a
 # directory that does not exist on a CI runner.
 #
-# [tool.uv.sources]
-# ohdsi-prompt-registry = { path = "../ohdsi-prompt-registry", editable = true }
+[tool.uv.sources]
+ohdsi-prompt-registry = { path = "../ohdsi-prompt-registry", editable = true }
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
