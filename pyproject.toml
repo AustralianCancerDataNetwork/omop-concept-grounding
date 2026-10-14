@@ -5,7 +5,7 @@ description = "Agent-facing instructions and contracts for verified OMOP concept
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-  "ohdsi-prompt-registry>=0.2,<1.0",
+  "ohdsi-prompt-registry>=0.3,<1.0",
 ]
 
 [project.optional-dependencies]

@@ -69,7 +69,7 @@ uv run ty check src/
 uv run pytest -q
 ```
 
-> **Note:** `ohdsi-prompt-registry` is not on PyPI yet, so `uv lock` and `uv sync` cannot resolve it. Uncomment the `[tool.uv.sources]` block in `pyproject.toml` for local work, and re-comment it before committing — a committed path source resolves to a directory that does not exist on a CI runner.
+The development environment resolves the published `ohdsi-prompt-registry` package. The tests exercise pack discovery through the installed-pack entry point; use the filesystem-source setup below when developing or previewing the pack directly from this checkout.
 
 For filesystem-source development, configure the registry root as the absolute path to `src/omop_concept_grounding/packs` and disable the other sources:
 
