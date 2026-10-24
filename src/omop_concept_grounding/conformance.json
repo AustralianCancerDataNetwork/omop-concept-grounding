@@ -1,0 +1,1219 @@
+{
+  "description": "Conformance cases for the omop-concept-grounding mapping contract. Run every case through validate_pair in each executor's CI. Concept IDs came from a vocabulary lookup but illustrate document shape only; they are not reviewed mapping guidance.",
+  "cases": [
+    {
+      "id": "mapped",
+      "description": "One verified standard target from a source code.",
+      "valid": true,
+      "request": {
+        "request_id": "batch-1",
+        "items": [
+          {
+            "item_id": "diagnosis-1",
+            "label": "Type 2 diabetes mellitus",
+            "source_vocabulary": "ICD10CM",
+            "source_code": "E11.9",
+            "domain_hint": "Condition"
+          }
+        ]
+      },
+      "decision": {
+        "request_id": "batch-1",
+        "decisions": [
+          {
+            "item_id": "diagnosis-1",
+            "source_label": "Type 2 diabetes mellitus",
+            "outcome": "mapped",
+            "proposals": [
+              {
+                "concept_id": 201826,
+                "concept_name": "Type 2 diabetes mellitus",
+                "domain_id": "Condition",
+                "vocabulary_id": "SNOMED",
+                "standard_concept": true,
+                "verified": true,
+                "confidence": 0.98,
+                "rationale": "The source code maps to this standard concept and the label agrees.",
+                "evidence": [
+                  "concept_map_to_standard(ICD10CM, E11.9) returned this target.",
+                  "concept_get confirmed name, domain, vocabulary and standard status."
+                ]
+              }
+            ],
+            "rationale": "One verified standard target preserves the diagnosis.",
+            "warnings": [],
+            "review_questions": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "ambiguous",
+      "description": "Two verified targets remain plausible; a reviewer chooses.",
+      "valid": true,
+      "request": {
+        "request_id": "batch-1",
+        "items": [
+          {
+            "item_id": "abbrev-mi",
+            "label": "MI",
+            "item_kind": "field",
+            "context": {
+              "section": "Cardiac history"
+            }
+          }
+        ]
+      },
+      "decision": {
+        "request_id": "batch-1",
+        "decisions": [
+          {
+            "item_id": "abbrev-mi",
+            "source_label": "MI",
+            "outcome": "ambiguous",
+            "proposals": [
+              {
+                "concept_id": 4329847,
+                "concept_name": "Myocardial infarction",
+                "domain_id": "Condition",
+                "vocabulary_id": "SNOMED",
+                "standard_concept": true,
+                "verified": true,
+                "confidence": 0.5,
+                "rationale": "A common expansion of MI in cardiology notes.",
+                "evidence": [
+                  "concept_search_exact found this standard concept.",
+                  "concept_get confirmed it."
+                ]
+              },
+              {
+                "concept_id": 443962,
+                "concept_name": "Mitral valve regurgitation",
+                "domain_id": "Condition",
+                "vocabulary_id": "SNOMED",
+                "standard_concept": true,
+                "verified": true,
+                "confidence": 0.5,
+                "rationale": "MI is also used for mitral insufficiency, a synonym of this concept.",
+                "evidence": [
+                  "concept_search_exact matched the synonym 'Mitral insufficiency'.",
+                  "concept_get confirmed it."
+                ]
+              }
+            ],
+            "rationale": "Both expansions are plausible in a cardiac section.",
+            "warnings": [],
+            "review_questions": [
+              "Does MI mean myocardial infarction or mitral insufficiency in this source?"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "needs_review_no_proposals",
+      "description": "Not enough context to propose anything.",
+      "valid": true,
+      "request": {
+        "request_id": "batch-1",
+        "items": [
+          {
+            "item_id": "abbrev-ms",
+            "label": "MS",
+            "item_kind": "field"
+          }
+        ]
+      },
+      "decision": {
+        "request_id": "batch-1",
+        "decisions": [
+          {
+            "item_id": "abbrev-ms",
+            "source_label": "MS",
+            "outcome": "needs_review",
+            "proposals": [],
+            "rationale": "The abbreviation has several expansions and no context.",
+            "warnings": [
+              "No vocabulary, code, domain or section was supplied."
+            ],
+            "review_questions": [
+              "What does MS mean in this source?"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "needs_review_with_proposal",
+      "description": "A verified option is kept, with a question about the qualifier.",
+      "valid": true,
+      "request": {
+        "request_id": "batch-1",
+        "items": [
+          {
+            "item_id": "history-1",
+            "label": "Previous heart attack",
+            "domain_hint": "Condition"
+          }
+        ]
+      },
+      "decision": {
+        "request_id": "batch-1",
+        "decisions": [
+          {
+            "item_id": "history-1",
+            "source_label": "Previous heart attack",
+            "outcome": "needs_review",
+            "proposals": [
+              {
+                "concept_id": 4329847,
+                "concept_name": "Myocardial infarction",
+                "domain_id": "Condition",
+                "vocabulary_id": "SNOMED",
+                "standard_concept": true,
+                "verified": true,
+                "confidence": 0.5,
+                "rationale": "A common expansion of MI in cardiology notes.",
+                "evidence": [
+                  "concept_search_exact found this standard concept.",
+                  "concept_get confirmed it."
+                ]
+              }
+            ],
+            "rationale": "The event is clear but the history qualifier changes how it is recorded.",
+            "warnings": [],
+            "review_questions": [
+              "Should a past myocardial infarction be recorded as a history-of observation?"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "unmappable",
+      "description": "Administrative content with no clinical meaning.",
+      "valid": true,
+      "request": {
+        "request_id": "batch-1",
+        "items": [
+          {
+            "item_id": "heading-1",
+            "label": "Reviewer notes",
+            "item_kind": "heading"
+          }
+        ]
+      },
+      "decision": {
+        "request_id": "batch-1",
+        "decisions": [
+          {
+            "item_id": "heading-1",
+            "source_label": "Reviewer notes",
+            "outcome": "unmappable",
+            "proposals": [],
+            "rationale": "An administrative heading, not a clinical meaning.",
+            "warnings": [],
+            "review_questions": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "batch_in_order",
+      "description": "Every outcome in one batch, in request order.",
+      "valid": true,
+      "request": {
+        "request_id": "batch-1",
+        "items": [
+          {
+            "item_id": "diagnosis-1",
+            "label": "Type 2 diabetes mellitus",
+            "source_vocabulary": "ICD10CM",
+            "source_code": "E11.9",
+            "domain_hint": "Condition"
+          },
+          {
+            "item_id": "abbrev-mi",
+            "label": "MI",
+            "item_kind": "field",
+            "context": {
+              "section": "Cardiac history"
+            }
+          },
+          {
+            "item_id": "abbrev-ms",
+            "label": "MS",
+            "item_kind": "field"
+          },
+          {
+            "item_id": "history-1",
+            "label": "Previous heart attack",
+            "domain_hint": "Condition"
+          },
+          {
+            "item_id": "heading-1",
+            "label": "Reviewer notes",
+            "item_kind": "heading"
+          }
+        ]
+      },
+      "decision": {
+        "request_id": "batch-1",
+        "decisions": [
+          {
+            "item_id": "diagnosis-1",
+            "source_label": "Type 2 diabetes mellitus",
+            "outcome": "mapped",
+            "proposals": [
+              {
+                "concept_id": 201826,
+                "concept_name": "Type 2 diabetes mellitus",
+                "domain_id": "Condition",
+                "vocabulary_id": "SNOMED",
+                "standard_concept": true,
+                "verified": true,
+                "confidence": 0.98,
+                "rationale": "The source code maps to this standard concept and the label agrees.",
+                "evidence": [
+                  "concept_map_to_standard(ICD10CM, E11.9) returned this target.",
+                  "concept_get confirmed name, domain, vocabulary and standard status."
+                ]
+              }
+            ],
+            "rationale": "One verified standard target preserves the diagnosis.",
+            "warnings": [],
+            "review_questions": []
+          },
+          {
+            "item_id": "abbrev-mi",
+            "source_label": "MI",
+            "outcome": "ambiguous",
+            "proposals": [
+              {
+                "concept_id": 4329847,
+                "concept_name": "Myocardial infarction",
+                "domain_id": "Condition",
+                "vocabulary_id": "SNOMED",
+                "standard_concept": true,
+                "verified": true,
+                "confidence": 0.5,
+                "rationale": "A common expansion of MI in cardiology notes.",
+                "evidence": [
+                  "concept_search_exact found this standard concept.",
+                  "concept_get confirmed it."
+                ]
+              },
+              {
+                "concept_id": 443962,
+                "concept_name": "Mitral valve regurgitation",
+                "domain_id": "Condition",
+                "vocabulary_id": "SNOMED",
+                "standard_concept": true,
+                "verified": true,
+                "confidence": 0.5,
+                "rationale": "MI is also used for mitral insufficiency, a synonym of this concept.",
+                "evidence": [
+                  "concept_search_exact matched the synonym 'Mitral insufficiency'.",
+                  "concept_get confirmed it."
+                ]
+              }
+            ],
+            "rationale": "Both expansions are plausible in a cardiac section.",
+            "warnings": [],
+            "review_questions": [
+              "Does MI mean myocardial infarction or mitral insufficiency in this source?"
+            ]
+          },
+          {
+            "item_id": "abbrev-ms",
+            "source_label": "MS",
+            "outcome": "needs_review",
+            "proposals": [],
+            "rationale": "The abbreviation has several expansions and no context.",
+            "warnings": [
+              "No vocabulary, code, domain or section was supplied."
+            ],
+            "review_questions": [
+              "What does MS mean in this source?"
+            ]
+          },
+          {
+            "item_id": "history-1",
+            "source_label": "Previous heart attack",
+            "outcome": "needs_review",
+            "proposals": [
+              {
+                "concept_id": 4329847,
+                "concept_name": "Myocardial infarction",
+                "domain_id": "Condition",
+                "vocabulary_id": "SNOMED",
+                "standard_concept": true,
+                "verified": true,
+                "confidence": 0.5,
+                "rationale": "A common expansion of MI in cardiology notes.",
+                "evidence": [
+                  "concept_search_exact found this standard concept.",
+                  "concept_get confirmed it."
+                ]
+              }
+            ],
+            "rationale": "The event is clear but the history qualifier changes how it is recorded.",
+            "warnings": [],
+            "review_questions": [
+              "Should a past myocardial infarction be recorded as a history-of observation?"
+            ]
+          },
+          {
+            "item_id": "heading-1",
+            "source_label": "Reviewer notes",
+            "outcome": "unmappable",
+            "proposals": [],
+            "rationale": "An administrative heading, not a clinical meaning.",
+            "warnings": [],
+            "review_questions": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "no_request_id",
+      "description": "request_id is optional when neither document sets it.",
+      "valid": true,
+      "request": {
+        "items": [
+          {
+            "item_id": "diagnosis-1",
+            "label": "Type 2 diabetes mellitus",
+            "source_vocabulary": "ICD10CM",
+            "source_code": "E11.9",
+            "domain_hint": "Condition"
+          }
+        ]
+      },
+      "decision": {
+        "decisions": [
+          {
+            "item_id": "diagnosis-1",
+            "source_label": "Type 2 diabetes mellitus",
+            "outcome": "mapped",
+            "proposals": [
+              {
+                "concept_id": 201826,
+                "concept_name": "Type 2 diabetes mellitus",
+                "domain_id": "Condition",
+                "vocabulary_id": "SNOMED",
+                "standard_concept": true,
+                "verified": true,
+                "confidence": 0.98,
+                "rationale": "The source code maps to this standard concept and the label agrees.",
+                "evidence": [
+                  "concept_map_to_standard(ICD10CM, E11.9) returned this target.",
+                  "concept_get confirmed name, domain, vocabulary and standard status."
+                ]
+              }
+            ],
+            "rationale": "One verified standard target preserves the diagnosis.",
+            "warnings": [],
+            "review_questions": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "mapped_two_proposals",
+      "description": "mapped allows exactly one proposal.",
+      "valid": false,
+      "error_path": "$.decision.decisions[0].proposals",
+      "request": {
+        "request_id": "batch-1",
+        "items": [
+          {
+            "item_id": "diagnosis-1",
+            "label": "Type 2 diabetes mellitus",
+            "source_vocabulary": "ICD10CM",
+            "source_code": "E11.9",
+            "domain_hint": "Condition"
+          }
+        ]
+      },
+      "decision": {
+        "request_id": "batch-1",
+        "decisions": [
+          {
+            "item_id": "diagnosis-1",
+            "source_label": "Type 2 diabetes mellitus",
+            "outcome": "mapped",
+            "proposals": [
+              {
+                "concept_id": 201826,
+                "concept_name": "Type 2 diabetes mellitus",
+                "domain_id": "Condition",
+                "vocabulary_id": "SNOMED",
+                "standard_concept": true,
+                "verified": true,
+                "confidence": 0.98,
+                "rationale": "The source code maps to this standard concept and the label agrees.",
+                "evidence": [
+                  "concept_map_to_standard(ICD10CM, E11.9) returned this target.",
+                  "concept_get confirmed name, domain, vocabulary and standard status."
+                ]
+              },
+              {
+                "concept_id": 4329847,
+                "concept_name": "Myocardial infarction",
+                "domain_id": "Condition",
+                "vocabulary_id": "SNOMED",
+                "standard_concept": true,
+                "verified": true,
+                "confidence": 0.5,
+                "rationale": "A common expansion of MI in cardiology notes.",
+                "evidence": [
+                  "concept_search_exact found this standard concept.",
+                  "concept_get confirmed it."
+                ]
+              }
+            ],
+            "rationale": "One verified standard target preserves the diagnosis.",
+            "warnings": [],
+            "review_questions": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "mapped_no_proposal",
+      "description": "mapped needs its proposal.",
+      "valid": false,
+      "error_path": "$.decision.decisions[0].proposals",
+      "request": {
+        "request_id": "batch-1",
+        "items": [
+          {
+            "item_id": "diagnosis-1",
+            "label": "Type 2 diabetes mellitus",
+            "source_vocabulary": "ICD10CM",
+            "source_code": "E11.9",
+            "domain_hint": "Condition"
+          }
+        ]
+      },
+      "decision": {
+        "request_id": "batch-1",
+        "decisions": [
+          {
+            "item_id": "diagnosis-1",
+            "source_label": "Type 2 diabetes mellitus",
+            "outcome": "mapped",
+            "proposals": [],
+            "rationale": "One verified standard target preserves the diagnosis.",
+            "warnings": [],
+            "review_questions": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "ambiguous_one_proposal",
+      "description": "ambiguous needs at least two proposals.",
+      "valid": false,
+      "error_path": "$.decision.decisions[0].proposals",
+      "request": {
+        "request_id": "batch-1",
+        "items": [
+          {
+            "item_id": "abbrev-mi",
+            "label": "MI",
+            "item_kind": "field",
+            "context": {
+              "section": "Cardiac history"
+            }
+          }
+        ]
+      },
+      "decision": {
+        "request_id": "batch-1",
+        "decisions": [
+          {
+            "item_id": "abbrev-mi",
+            "source_label": "MI",
+            "outcome": "ambiguous",
+            "proposals": [
+              {
+                "concept_id": 4329847,
+                "concept_name": "Myocardial infarction",
+                "domain_id": "Condition",
+                "vocabulary_id": "SNOMED",
+                "standard_concept": true,
+                "verified": true,
+                "confidence": 0.5,
+                "rationale": "A common expansion of MI in cardiology notes.",
+                "evidence": [
+                  "concept_search_exact found this standard concept.",
+                  "concept_get confirmed it."
+                ]
+              }
+            ],
+            "rationale": "Both expansions are plausible in a cardiac section.",
+            "warnings": [],
+            "review_questions": [
+              "Does MI mean myocardial infarction or mitral insufficiency in this source?"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ambiguous_no_question",
+      "description": "ambiguous must ask the reviewer something.",
+      "valid": false,
+      "error_path": "$.decision.decisions[0].review_questions",
+      "request": {
+        "request_id": "batch-1",
+        "items": [
+          {
+            "item_id": "abbrev-mi",
+            "label": "MI",
+            "item_kind": "field",
+            "context": {
+              "section": "Cardiac history"
+            }
+          }
+        ]
+      },
+      "decision": {
+        "request_id": "batch-1",
+        "decisions": [
+          {
+            "item_id": "abbrev-mi",
+            "source_label": "MI",
+            "outcome": "ambiguous",
+            "proposals": [
+              {
+                "concept_id": 4329847,
+                "concept_name": "Myocardial infarction",
+                "domain_id": "Condition",
+                "vocabulary_id": "SNOMED",
+                "standard_concept": true,
+                "verified": true,
+                "confidence": 0.5,
+                "rationale": "A common expansion of MI in cardiology notes.",
+                "evidence": [
+                  "concept_search_exact found this standard concept.",
+                  "concept_get confirmed it."
+                ]
+              },
+              {
+                "concept_id": 443962,
+                "concept_name": "Mitral valve regurgitation",
+                "domain_id": "Condition",
+                "vocabulary_id": "SNOMED",
+                "standard_concept": true,
+                "verified": true,
+                "confidence": 0.5,
+                "rationale": "MI is also used for mitral insufficiency, a synonym of this concept.",
+                "evidence": [
+                  "concept_search_exact matched the synonym 'Mitral insufficiency'.",
+                  "concept_get confirmed it."
+                ]
+              }
+            ],
+            "rationale": "Both expansions are plausible in a cardiac section.",
+            "warnings": [],
+            "review_questions": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "needs_review_no_question",
+      "description": "needs_review must ask at least one question.",
+      "valid": false,
+      "error_path": "$.decision.decisions[0].review_questions",
+      "request": {
+        "request_id": "batch-1",
+        "items": [
+          {
+            "item_id": "abbrev-ms",
+            "label": "MS",
+            "item_kind": "field"
+          }
+        ]
+      },
+      "decision": {
+        "request_id": "batch-1",
+        "decisions": [
+          {
+            "item_id": "abbrev-ms",
+            "source_label": "MS",
+            "outcome": "needs_review",
+            "proposals": [],
+            "rationale": "The abbreviation has several expansions and no context.",
+            "warnings": [
+              "No vocabulary, code, domain or section was supplied."
+            ],
+            "review_questions": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "unmappable_with_proposal",
+      "description": "unmappable carries no proposals.",
+      "valid": false,
+      "error_path": "$.decision.decisions[0].proposals",
+      "request": {
+        "request_id": "batch-1",
+        "items": [
+          {
+            "item_id": "heading-1",
+            "label": "Reviewer notes",
+            "item_kind": "heading"
+          }
+        ]
+      },
+      "decision": {
+        "request_id": "batch-1",
+        "decisions": [
+          {
+            "item_id": "heading-1",
+            "source_label": "Reviewer notes",
+            "outcome": "unmappable",
+            "proposals": [
+              {
+                "concept_id": 201826,
+                "concept_name": "Type 2 diabetes mellitus",
+                "domain_id": "Condition",
+                "vocabulary_id": "SNOMED",
+                "standard_concept": true,
+                "verified": true,
+                "confidence": 0.98,
+                "rationale": "The source code maps to this standard concept and the label agrees.",
+                "evidence": [
+                  "concept_map_to_standard(ICD10CM, E11.9) returned this target.",
+                  "concept_get confirmed name, domain, vocabulary and standard status."
+                ]
+              }
+            ],
+            "rationale": "An administrative heading, not a clinical meaning.",
+            "warnings": [],
+            "review_questions": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "unverified_proposal",
+      "description": "Every proposal must be verified with concept_get.",
+      "valid": false,
+      "error_path": "$.decision.decisions[0].proposals[0].verified",
+      "request": {
+        "request_id": "batch-1",
+        "items": [
+          {
+            "item_id": "diagnosis-1",
+            "label": "Type 2 diabetes mellitus",
+            "source_vocabulary": "ICD10CM",
+            "source_code": "E11.9",
+            "domain_hint": "Condition"
+          }
+        ]
+      },
+      "decision": {
+        "request_id": "batch-1",
+        "decisions": [
+          {
+            "item_id": "diagnosis-1",
+            "source_label": "Type 2 diabetes mellitus",
+            "outcome": "mapped",
+            "proposals": [
+              {
+                "concept_id": 201826,
+                "concept_name": "Type 2 diabetes mellitus",
+                "domain_id": "Condition",
+                "vocabulary_id": "SNOMED",
+                "standard_concept": true,
+                "verified": false,
+                "confidence": 0.98,
+                "rationale": "The source code maps to this standard concept and the label agrees.",
+                "evidence": [
+                  "concept_map_to_standard(ICD10CM, E11.9) returned this target.",
+                  "concept_get confirmed name, domain, vocabulary and standard status."
+                ]
+              }
+            ],
+            "rationale": "One verified standard target preserves the diagnosis.",
+            "warnings": [],
+            "review_questions": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "non_standard_proposal",
+      "description": "Every proposal must be a standard concept.",
+      "valid": false,
+      "error_path": "$.decision.decisions[0].proposals[0].standard_concept",
+      "request": {
+        "request_id": "batch-1",
+        "items": [
+          {
+            "item_id": "diagnosis-1",
+            "label": "Type 2 diabetes mellitus",
+            "source_vocabulary": "ICD10CM",
+            "source_code": "E11.9",
+            "domain_hint": "Condition"
+          }
+        ]
+      },
+      "decision": {
+        "request_id": "batch-1",
+        "decisions": [
+          {
+            "item_id": "diagnosis-1",
+            "source_label": "Type 2 diabetes mellitus",
+            "outcome": "mapped",
+            "proposals": [
+              {
+                "concept_id": 201826,
+                "concept_name": "Type 2 diabetes mellitus",
+                "domain_id": "Condition",
+                "vocabulary_id": "SNOMED",
+                "standard_concept": false,
+                "verified": true,
+                "confidence": 0.98,
+                "rationale": "The source code maps to this standard concept and the label agrees.",
+                "evidence": [
+                  "concept_map_to_standard(ICD10CM, E11.9) returned this target.",
+                  "concept_get confirmed name, domain, vocabulary and standard status."
+                ]
+              }
+            ],
+            "rationale": "One verified standard target preserves the diagnosis.",
+            "warnings": [],
+            "review_questions": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "unknown_outcome",
+      "description": "Outcomes are limited to the published enum.",
+      "valid": false,
+      "error_path": "$.decision.decisions[0].outcome",
+      "request": {
+        "request_id": "batch-1",
+        "items": [
+          {
+            "item_id": "diagnosis-1",
+            "label": "Type 2 diabetes mellitus",
+            "source_vocabulary": "ICD10CM",
+            "source_code": "E11.9",
+            "domain_hint": "Condition"
+          }
+        ]
+      },
+      "decision": {
+        "request_id": "batch-1",
+        "decisions": [
+          {
+            "item_id": "diagnosis-1",
+            "source_label": "Type 2 diabetes mellitus",
+            "outcome": "partially_mapped",
+            "proposals": [
+              {
+                "concept_id": 201826,
+                "concept_name": "Type 2 diabetes mellitus",
+                "domain_id": "Condition",
+                "vocabulary_id": "SNOMED",
+                "standard_concept": true,
+                "verified": true,
+                "confidence": 0.98,
+                "rationale": "The source code maps to this standard concept and the label agrees.",
+                "evidence": [
+                  "concept_map_to_standard(ICD10CM, E11.9) returned this target.",
+                  "concept_get confirmed name, domain, vocabulary and standard status."
+                ]
+              }
+            ],
+            "rationale": "One verified standard target preserves the diagnosis.",
+            "warnings": [],
+            "review_questions": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "unknown_field",
+      "description": "Unrecognised fields are rejected, not ignored.",
+      "valid": false,
+      "error_path": "$.decision.decisions[0]",
+      "request": {
+        "request_id": "batch-1",
+        "items": [
+          {
+            "item_id": "diagnosis-1",
+            "label": "Type 2 diabetes mellitus",
+            "source_vocabulary": "ICD10CM",
+            "source_code": "E11.9",
+            "domain_hint": "Condition"
+          }
+        ]
+      },
+      "decision": {
+        "request_id": "batch-1",
+        "decisions": [
+          {
+            "item_id": "diagnosis-1",
+            "source_label": "Type 2 diabetes mellitus",
+            "outcome": "mapped",
+            "proposals": [
+              {
+                "concept_id": 201826,
+                "concept_name": "Type 2 diabetes mellitus",
+                "domain_id": "Condition",
+                "vocabulary_id": "SNOMED",
+                "standard_concept": true,
+                "verified": true,
+                "confidence": 0.98,
+                "rationale": "The source code maps to this standard concept and the label agrees.",
+                "evidence": [
+                  "concept_map_to_standard(ICD10CM, E11.9) returned this target.",
+                  "concept_get confirmed name, domain, vocabulary and standard status."
+                ]
+              }
+            ],
+            "rationale": "One verified standard target preserves the diagnosis.",
+            "warnings": [],
+            "review_questions": [],
+            "approved": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "request_id_mismatch",
+      "description": "The decision must echo the request's request_id.",
+      "valid": false,
+      "error_path": "$.decision.request_id",
+      "request": {
+        "request_id": "batch-1",
+        "items": [
+          {
+            "item_id": "diagnosis-1",
+            "label": "Type 2 diabetes mellitus",
+            "source_vocabulary": "ICD10CM",
+            "source_code": "E11.9",
+            "domain_hint": "Condition"
+          }
+        ]
+      },
+      "decision": {
+        "request_id": "batch-2",
+        "decisions": [
+          {
+            "item_id": "diagnosis-1",
+            "source_label": "Type 2 diabetes mellitus",
+            "outcome": "mapped",
+            "proposals": [
+              {
+                "concept_id": 201826,
+                "concept_name": "Type 2 diabetes mellitus",
+                "domain_id": "Condition",
+                "vocabulary_id": "SNOMED",
+                "standard_concept": true,
+                "verified": true,
+                "confidence": 0.98,
+                "rationale": "The source code maps to this standard concept and the label agrees.",
+                "evidence": [
+                  "concept_map_to_standard(ICD10CM, E11.9) returned this target.",
+                  "concept_get confirmed name, domain, vocabulary and standard status."
+                ]
+              }
+            ],
+            "rationale": "One verified standard target preserves the diagnosis.",
+            "warnings": [],
+            "review_questions": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "missing_decision",
+      "description": "Every request item needs a decision.",
+      "valid": false,
+      "error_path": "$.decision.decisions",
+      "request": {
+        "request_id": "batch-1",
+        "items": [
+          {
+            "item_id": "diagnosis-1",
+            "label": "Type 2 diabetes mellitus",
+            "source_vocabulary": "ICD10CM",
+            "source_code": "E11.9",
+            "domain_hint": "Condition"
+          },
+          {
+            "item_id": "heading-1",
+            "label": "Reviewer notes",
+            "item_kind": "heading"
+          }
+        ]
+      },
+      "decision": {
+        "request_id": "batch-1",
+        "decisions": [
+          {
+            "item_id": "diagnosis-1",
+            "source_label": "Type 2 diabetes mellitus",
+            "outcome": "mapped",
+            "proposals": [
+              {
+                "concept_id": 201826,
+                "concept_name": "Type 2 diabetes mellitus",
+                "domain_id": "Condition",
+                "vocabulary_id": "SNOMED",
+                "standard_concept": true,
+                "verified": true,
+                "confidence": 0.98,
+                "rationale": "The source code maps to this standard concept and the label agrees.",
+                "evidence": [
+                  "concept_map_to_standard(ICD10CM, E11.9) returned this target.",
+                  "concept_get confirmed name, domain, vocabulary and standard status."
+                ]
+              }
+            ],
+            "rationale": "One verified standard target preserves the diagnosis.",
+            "warnings": [],
+            "review_questions": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "unknown_item",
+      "description": "A decision must answer an item in the request.",
+      "valid": false,
+      "error_path": "$.decision.decisions[0].item_id",
+      "request": {
+        "request_id": "batch-1",
+        "items": [
+          {
+            "item_id": "diagnosis-1",
+            "label": "Type 2 diabetes mellitus",
+            "source_vocabulary": "ICD10CM",
+            "source_code": "E11.9",
+            "domain_hint": "Condition"
+          }
+        ]
+      },
+      "decision": {
+        "request_id": "batch-1",
+        "decisions": [
+          {
+            "item_id": "diagnosis-9",
+            "source_label": "Type 2 diabetes mellitus",
+            "outcome": "mapped",
+            "proposals": [
+              {
+                "concept_id": 201826,
+                "concept_name": "Type 2 diabetes mellitus",
+                "domain_id": "Condition",
+                "vocabulary_id": "SNOMED",
+                "standard_concept": true,
+                "verified": true,
+                "confidence": 0.98,
+                "rationale": "The source code maps to this standard concept and the label agrees.",
+                "evidence": [
+                  "concept_map_to_standard(ICD10CM, E11.9) returned this target.",
+                  "concept_get confirmed name, domain, vocabulary and standard status."
+                ]
+              }
+            ],
+            "rationale": "One verified standard target preserves the diagnosis.",
+            "warnings": [],
+            "review_questions": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "duplicate_decision",
+      "description": "Each item gets exactly one decision.",
+      "valid": false,
+      "error_path": "$.decision.decisions[1].item_id",
+      "request": {
+        "request_id": "batch-1",
+        "items": [
+          {
+            "item_id": "diagnosis-1",
+            "label": "Type 2 diabetes mellitus",
+            "source_vocabulary": "ICD10CM",
+            "source_code": "E11.9",
+            "domain_hint": "Condition"
+          }
+        ]
+      },
+      "decision": {
+        "request_id": "batch-1",
+        "decisions": [
+          {
+            "item_id": "diagnosis-1",
+            "source_label": "Type 2 diabetes mellitus",
+            "outcome": "mapped",
+            "proposals": [
+              {
+                "concept_id": 201826,
+                "concept_name": "Type 2 diabetes mellitus",
+                "domain_id": "Condition",
+                "vocabulary_id": "SNOMED",
+                "standard_concept": true,
+                "verified": true,
+                "confidence": 0.98,
+                "rationale": "The source code maps to this standard concept and the label agrees.",
+                "evidence": [
+                  "concept_map_to_standard(ICD10CM, E11.9) returned this target.",
+                  "concept_get confirmed name, domain, vocabulary and standard status."
+                ]
+              }
+            ],
+            "rationale": "One verified standard target preserves the diagnosis.",
+            "warnings": [],
+            "review_questions": []
+          },
+          {
+            "item_id": "diagnosis-1",
+            "source_label": "Type 2 diabetes mellitus",
+            "outcome": "mapped",
+            "proposals": [
+              {
+                "concept_id": 201826,
+                "concept_name": "Type 2 diabetes mellitus",
+                "domain_id": "Condition",
+                "vocabulary_id": "SNOMED",
+                "standard_concept": true,
+                "verified": true,
+                "confidence": 0.98,
+                "rationale": "The source code maps to this standard concept and the label agrees.",
+                "evidence": [
+                  "concept_map_to_standard(ICD10CM, E11.9) returned this target.",
+                  "concept_get confirmed name, domain, vocabulary and standard status."
+                ]
+              }
+            ],
+            "rationale": "One verified standard target preserves the diagnosis.",
+            "warnings": [],
+            "review_questions": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "wrong_order",
+      "description": "Decisions follow request item order.",
+      "valid": false,
+      "error_path": "$.decision.decisions",
+      "request": {
+        "request_id": "batch-1",
+        "items": [
+          {
+            "item_id": "diagnosis-1",
+            "label": "Type 2 diabetes mellitus",
+            "source_vocabulary": "ICD10CM",
+            "source_code": "E11.9",
+            "domain_hint": "Condition"
+          },
+          {
+            "item_id": "heading-1",
+            "label": "Reviewer notes",
+            "item_kind": "heading"
+          }
+        ]
+      },
+      "decision": {
+        "request_id": "batch-1",
+        "decisions": [
+          {
+            "item_id": "heading-1",
+            "source_label": "Reviewer notes",
+            "outcome": "unmappable",
+            "proposals": [],
+            "rationale": "An administrative heading, not a clinical meaning.",
+            "warnings": [],
+            "review_questions": []
+          },
+          {
+            "item_id": "diagnosis-1",
+            "source_label": "Type 2 diabetes mellitus",
+            "outcome": "mapped",
+            "proposals": [
+              {
+                "concept_id": 201826,
+                "concept_name": "Type 2 diabetes mellitus",
+                "domain_id": "Condition",
+                "vocabulary_id": "SNOMED",
+                "standard_concept": true,
+                "verified": true,
+                "confidence": 0.98,
+                "rationale": "The source code maps to this standard concept and the label agrees.",
+                "evidence": [
+                  "concept_map_to_standard(ICD10CM, E11.9) returned this target.",
+                  "concept_get confirmed name, domain, vocabulary and standard status."
+                ]
+              }
+            ],
+            "rationale": "One verified standard target preserves the diagnosis.",
+            "warnings": [],
+            "review_questions": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "label_changed",
+      "description": "source_label echoes the request label unchanged.",
+      "valid": false,
+      "error_path": "$.decision.decisions[0].source_label",
+      "request": {
+        "request_id": "batch-1",
+        "items": [
+          {
+            "item_id": "diagnosis-1",
+            "label": "Type 2 diabetes mellitus",
+            "source_vocabulary": "ICD10CM",
+            "source_code": "E11.9",
+            "domain_hint": "Condition"
+          }
+        ]
+      },
+      "decision": {
+        "request_id": "batch-1",
+        "decisions": [
+          {
+            "item_id": "diagnosis-1",
+            "source_label": "type 2 diabetes",
+            "outcome": "mapped",
+            "proposals": [
+              {
+                "concept_id": 201826,
+                "concept_name": "Type 2 diabetes mellitus",
+                "domain_id": "Condition",
+                "vocabulary_id": "SNOMED",
+                "standard_concept": true,
+                "verified": true,
+                "confidence": 0.98,
+                "rationale": "The source code maps to this standard concept and the label agrees.",
+                "evidence": [
+                  "concept_map_to_standard(ICD10CM, E11.9) returned this target.",
+                  "concept_get confirmed name, domain, vocabulary and standard status."
+                ]
+              }
+            ],
+            "rationale": "One verified standard target preserves the diagnosis.",
+            "warnings": [],
+            "review_questions": []
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -42,7 +42,9 @@ call `ohdsi_prompt_registry_validate` with `pack: omop-concept-grounding`,
 correct invalid source content; do not invent missing values.
 
 Process every item independently and return exactly one decision with the same
-`item_id`. Do not merge labels merely because they occur in one batch.
+`item_id`. Copy the item's `label` into `source_label` unchanged, and echo the
+request's `request_id` when it has one. Do not merge labels merely because they
+occur in one batch.
 
 ## Evidence workflow
 
