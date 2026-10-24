@@ -1,6 +1,6 @@
 name: omop-concept-grounding
 title: OMOP concept grounding
-version: "1.0"
+version: "1.1"
 shareability: public
 scope_summary: >
   Guides an agent in mapping source clinical items to verified, active OMOP

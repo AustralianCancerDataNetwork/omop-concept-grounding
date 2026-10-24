@@ -5,7 +5,9 @@ and JSON Schema contracts for mapping source clinical items to verified OMOP sta
 
 For the registry's analyst workflow, source precedence, and pack authoring contract, see the [OHDSI Prompt Registry documentation](https://AustralianCancerDataNetwork.github.io/ohdsi-prompt-registry).
 
-The package registers no Groundworkers plugin, MCP tool, model backend, or executable hook. Its only entry point contributes prompt-pack prompts and resources through `ohdsi_prompt_registry.packs`.
+The package registers no Groundworkers plugin, MCP tool, model backend, or executable hook. Its only entry point contributes prompt-pack prompts and resources through `ohdsi_prompt_registry.packs`. It also has an importable module, `omop_concept_grounding.contract` for code that consumes mapping decisions (see [Using the contract in code](#using-the-contract-in-code)).
+
+This package **owns the mapping decision contract**: the two schemas, the outcome enum, the pair check and the conformance cases. Other components (e.g. groundcrew's mapping stage and review flow) conform to it rather than restating it.
 
 ## Pack contents
 
@@ -58,7 +60,37 @@ A decision document carries one entry per item, each with an `outcome`:
 
 The shape of a decision is therefore determined by its outcome, not merely described by it: a `mapped` item cannot smuggle a second candidate through, and an `ambiguous` or `needs_review` item cannot be returned without stating the question a reviewer has to answer.
 
+Each decision echoes its request item: the same `item_id`, the item's `label` unchanged as `source_label`, and the request's `request_id` when one is set. Decisions follow request order, one per item. A single schema can't check these rules, because they relate two documents; `validate_pair` below checks them.
+
 Every proposal must carry `concept_id`, `concept_name`, `domain_id`, `vocabulary_id`, `rationale`, `confidence`, and its supporting `evidence`, and must assert both `standard_concept: true` and `verified: true` — the schema encodes these as `const`, so an unverified or non-standard concept cannot be expressed as a proposal at all. Each decision also carries `rationale`, `warnings`, and `review_questions`, so an unresolved item hands a reviewer the open question rather than a silent gap.
+
+## Using the contract in code
+
+Agents check their output's shape with the registry's `ohdsi_prompt_registry_validate` tool. Code that consumes decisions should check them itself, where the data arrives:
+
+```python
+from omop_concept_grounding.contract import Outcome, contract_version, validate_pair
+
+report = validate_pair(request, decision)   # dicts or JSON text
+if not report["valid"]:
+    ...  # report["errors"]: path, reason, kind ("schema_violation" | "request_mismatch" | "json_parse")
+
+for item in decision["decisions"]:
+    if item["outcome"] == Outcome.AMBIGUOUS:
+        ...
+```
+
+| Name | What it gives you |
+|---|---|
+| `Outcome` | The outcome enum as a `StrEnum`. Tests keep it identical to the schema |
+| `contract_version()` | The pack's content contract version (manifest `version`). Pin its major part |
+| `schema(key)` | A copy of `mapping_request` or `mapping_decision` |
+| `validate_pair(request, decision)` | Both schemas, then the pair rules: matching `request_id`, one decision per item, request order, `source_label` equal to `label`. Pair rules run only once both documents are schema-valid |
+| `conformance_cases()` | 23 request/decision pairs, 7 valid and 16 invalid, each naming the error path it should fail at. They cover every outcome and every schema and pair rule |
+
+Run every conformance case through your own consumer in CI. Each consumer then tests against the same definition of "mapped" as this package. The concept IDs in the cases came from a vocabulary lookup, but they illustrate document shape only; they are not reviewed mapping guidance.
+
+`validate_pair` checks documents, not truth. It can't tell whether a concept is clinically right, or whether the agent really called the tools its evidence cites.
 
 ## Development
 
