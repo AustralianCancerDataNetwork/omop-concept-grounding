@@ -92,6 +92,20 @@ Run every conformance case through your own consumer in CI. Each consumer then t
 
 `validate_pair` checks documents, not truth. It can't tell whether a concept is clinically right, or whether the agent really called the tools its evidence cites.
 
+## Contract owners
+
+Owned here
+
+| Contract | Where it is defined | Who consumes it |
+|---|---|---|
+| Mapping decisions and grounding guidance | [Contract API](src/omop_concept_grounding/contract.py); [request schema](src/omop_concept_grounding/packs/omop-concept-grounding/mapping-request.schema.json); [decision schema](src/omop_concept_grounding/packs/omop-concept-grounding/mapping-decision.schema.json); [pack manifest](src/omop_concept_grounding/packs/omop-concept-grounding/manifest.yaml) | Groundcrew and agents using the grounding pack |
+
+Consumed from elsewhere
+
+| Contract | Owner repo | How this repo conforms |
+|---|---|---|
+| Registry pack format and JSON validation | [ohdsi-prompt-registry](https://github.com/AustralianCancerDataNetwork/ohdsi-prompt-registry#contract-owners) | [contract.py](src/omop_concept_grounding/contract.py) imports registry validation; [pack tests](tests/test_pack.py) check loading and examples |
+
 ## Development
 
 ```bash
